@@ -1,4 +1,4 @@
-    :root {
+:root {
             --primary-color: #3498db;
             --secondary-color: #2980b9;
             --success-color: #2ecc71;
@@ -24,10 +24,16 @@
             box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
             margin-bottom: 20px;
             border: none;
+             
+            
+        }
+        .card-pri{
+            background-color: var(--primary-color);
         }
         
         .card-header {
             background-color: var(--primary-color);
+           
             color: white;
             border-radius: 10px 10px 0 0 !important;
             font-weight: 600;
@@ -48,10 +54,16 @@
             transition: all 0.3s;
             border-radius: 5px;
             position: relative;
+            border: 2px solid transparent;
         }
         
         .attendance-day:hover {
             transform: scale(1.05);
+        }
+        
+        .attendance-day.selected {
+            border-color: var(--dark-color);
+            box-shadow: 0 0 0 2px var(--primary-color);
         }
         
         .present {
@@ -74,21 +86,87 @@
             color: #5e3370;
         }
         
+        .calendar-container {
+            overflow-x: auto;
+        }
+        
+        .calendar-table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 3px;
+        }
+        
+        .calendar-table th {
+            text-align: center;
+            background-color: #f8f9fa;
+            padding: 8px;
+            font-weight: 600;
+        }
+        
+        .calendar-table td {
+            vertical-align: middle;
+            text-align: center;
+            padding: 10px;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.2s;
+            border: 2px solid transparent;
+        }
+        
         .calendar-day {
-            height: 60px;
+            height: 40px;
+            width: 40px;
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
+            position: relative;
         }
         
         .day-number {
             font-weight: bold;
-            margin-bottom: 2px;
+            font-size: 14px;
         }
         
         .day-status {
-            font-size: 0.8rem;
+            font-size: 12px;
+            font-weight: bold;
+            margin-top: 2px;
+        }
+        
+        .present {
+            background-color: #d4edda;
+            color: #155724;
+        }
+        
+        .absent {
+            background-color: #f8d7da;
+            color: #721c24;
+        }
+        
+        .leave {
+            background-color: #fff3cd;
+            color: #856404;
+        }
+        
+        .holiday {
+            background-color: #e8d6f0;
+            color: #5e3370;
+        }
+        
+        .empty-day {
+            background-color: #f8f9fa;
+        }
+        
+        .selected {
+            border-color: #3498db;
+            box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.5);
+            transform: scale(1.05);
+        }
+        
+        .sunday {
+            background-color: #f8f9fa;
+            color: #6c757d;
         }
         
         .progress {
@@ -126,4 +204,28 @@
         
         .holiday-badge {
             cursor: pointer;
+        }
+        
+        /* Calendar layout improvements */
+        .calendar-container {
+            overflow-x: auto;
+        }
+        
+        .calendar-table {
+            min-width: 100%;
+        }
+        
+        .calendar-table th {
+            text-align: center;
+            background-color: #f8f9fa;
+        }
+        
+        .calendar-table td {
+            vertical-align: middle;
+            text-align: center;
+        }
+        
+        /* PDF download button */
+        .pdf-download-btn {
+            margin-left: 10px;
         }

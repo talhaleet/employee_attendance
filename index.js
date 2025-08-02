@@ -1,4 +1,4 @@
-        // Global variables
+ // Global variables
         let teachers = [];
         let attendanceRecords = {};
         let currentMonth = new Date().toISOString().slice(0, 7);
@@ -9,6 +9,7 @@
         };
         let holidays = {};
         let attendanceChart = null;
+        const { jsPDF } = window.jspdf;
 
         // DOM Ready
         document.addEventListener('DOMContentLoaded', function() {
@@ -56,6 +57,13 @@
                 document.getElementById('importFileInput').click();
             });
             document.getElementById('importFileInput').addEventListener('change', importData);
+            document.getElementById('downloadPdfBtn').addEventListener('click', downloadAttendancePdf);
+            
+            // Attendance marking buttons
+            document.getElementById('markPresentBtn').addEventListener('click', () => markSelectedDay('P'));
+            document.getElementById('markAbsentBtn').addEventListener('click', () => markSelectedDay('A'));
+            document.getElementById('markLeaveBtn').addEventListener('click', () => markSelectedDay('L'));
+            document.getElementById('clearMarkingBtn').addEventListener('click', () => markSelectedDay(''));
             
             // Set current month in date inputs
             document.getElementById('attendanceMonth').value = currentMonth;
@@ -371,23 +379,13 @@
             const month = document.getElementById('attendanceMonth').value;
             const teacherId = document.getElementById('attendanceTeacher').value;
             
-            if (!month) {
-                alert('Please select a month');
+            if (!month || !teacherId) {
+                alert('Please select both month and teacher');
                 return;
             }
             
-            if (!teacherId) {
-                alert('Please select a teacher');
-                return;
-            }
-            
-            currentMonth = month;
             selectedTeacherId = teacherId;
-            
-            // Generate calendar
             renderAttendanceCalendar(month, teacherId);
-            
-            // Calculate and display summary
             calculateAttendanceSummary(month, teacherId);
         }
         
@@ -407,9 +405,10 @@
             let calendarHTML = `
                 <h5 class="mb-3">${teacherNameById(teacherId)} - ${monthName(monthNum)} ${year}</h5>
                 <div class="table-responsive">
-                    <table class="table table-bordered">
+                    <table class="table table-bordered calendar-table">
                         <thead>
                             <tr>
+                                <th>Sun</th>
                                 <th>Mon</th>
                                 <th>Tue</th>
                                 <th>Wed</th>
@@ -419,130 +418,94 @@
                             </tr>
                         </thead>
                         <tbody>
-                            <tr>
             `;
             
-            // Calculate the starting position (skip Sundays)
-            let startingPosition = firstDayOfWeek === 0 ? 6 : firstDayOfWeek - 1;
+            // Calculate the starting position
+            let currentDay = 1;
+            let dayOfWeek = firstDayOfWeek;
             
-            // Add empty cells for days before the first day of the month
-            for (let i = 0; i < startingPosition; i++) {
-                calendarHTML += '<td class="calendar-day"></td>';
-            }
-            
-            // Add cells for each day of the month (excluding Sundays)
-            let dayCounter = 0;
-            for (let day = 1; day <= daysInMonth; day++) {
-                const date = new Date(year, monthNum - 1, day);
-                const dayOfWeek = date.getDay();
+            // Create weeks
+            while (currentDay <= daysInMonth) {
+                calendarHTML += '<tr>';
                 
-                // Skip Sundays (dayOfWeek === 0)
-                if (dayOfWeek === 0) continue;
-                
-                // Start new row every 6 days (since we're skipping Sundays)
-                if (dayCounter > 0 && dayCounter % 6 === 0) {
-                    calendarHTML += '</tr><tr>';
+                // Create days for each week
+                for (let i = 0; i < 7; i++) {
+                    if ((currentDay === 1 && i < dayOfWeek) || currentDay > daysInMonth) {
+                        // Empty cell before the first day or after the last day
+                        calendarHTML += '<td class="empty-day"></td>';
+                    } else {
+                        const date = new Date(year, monthNum - 1, currentDay);
+                        const isSunday = date.getDay() === 0;
+                        
+                        // Check if this is a holiday
+                        const isHoliday = monthHolidays[currentDay];
+                        
+                        // Get attendance status
+                        let attendanceStatus = monthAttendance[currentDay] || '';
+                        if (isHoliday) {
+                            attendanceStatus = 'H'; // H for Holiday
+                        }
+                        
+                        let statusClass = '';
+                        let statusText = '';
+                        
+                        switch (attendanceStatus) {
+                            case 'P':
+                                statusClass = 'present';
+                                statusText = 'P';
+                                break;
+                            case 'A':
+                                statusClass = 'absent';
+                                statusText = 'A';
+                                break;
+                            case 'L':
+                                statusClass = 'leave';
+                                statusText = 'L';
+                                break;
+                            case 'H':
+                                statusClass = 'holiday';
+                                statusText = 'H';
+                                break;
+                            default:
+                                statusText = '';
+                        }
+                        
+                        const dayClass = isSunday ? 'sunday' : statusClass;
+                        const dayTitle = isSunday ? 'Sunday' : 
+                                         isHoliday ? 'Holiday' : 
+                                         statusText ? statusText === 'P' ? 'Present' : 
+                                                     statusText === 'A' ? 'Absent' : 
+                                                     statusText === 'L' ? 'Leave' : '' : 'No record';
+                        
+                        calendarHTML += `
+                            <td class="${dayClass}" 
+                                data-day="${currentDay}" 
+                                data-teacher="${teacherId}" 
+                                data-month="${month}"
+                                title="${dayTitle}">
+                                <div class="calendar-day">
+                                    <div class="day-number">${currentDay}</div>
+                                    ${statusText ? `<div class="day-status">${statusText}</div>` : ''}
+                                </div>
+                            </td>
+                        `;
+                        currentDay++;
+                    }
                 }
                 
-                dayCounter++;
-                
-                // Check if this is a holiday
-                const isHoliday = monthHolidays[day];
-                
-                // Get attendance status
-                let attendanceStatus = monthAttendance[day] || '';
-                if (isHoliday) {
-                    attendanceStatus = 'H'; // H for Holiday
-                }
-                
-                let statusClass = '';
-                let statusText = '';
-                let dayName = '';
-                
-                switch (attendanceStatus) {
-                    case 'P':
-                        statusClass = 'present';
-                        statusText = 'Present';
-                        break;
-                    case 'A':
-                        statusClass = 'absent';
-                        statusText = 'Absent';
-                        break;
-                    case 'L':
-                        statusClass = 'leave';
-                        statusText = 'Leave';
-                        break;
-                    case 'H':
-                        statusClass = 'holiday';
-                        statusText = isHoliday || 'Holiday';
-                        break;
-                    default:
-                        statusText = '';
-                }
-                
-                // Get day name
-                const dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
-                dayName = dayNames[dayOfWeek];
-                
-                calendarHTML += `
-                    <td class="calendar-day ${statusClass} ${isHoliday ? 'holiday' : ''}" 
-                        data-day="${day}" 
-                        data-teacher="${teacherId}" 
-                        data-month="${month}"
-                        title="${dayName}, ${day} ${monthName(monthNum)} - ${statusText || 'No record'}">
-                        <div class="day-number">${day}</div>
-                        <div class="day-name small">${dayName}</div>
-                        ${statusText ? `<div class="day-status">${statusText.charAt(0)}</div>` : ''}
-                    </td>
-                `;
-            }
-            
-            // Add empty cells for remaining days in the last week
-            const remainingCells = 6 - (dayCounter % 6);
-            if (remainingCells < 6) {
-                for (let i = 0; i < remainingCells; i++) {
-                    calendarHTML += '<td class="calendar-day"></td>';
-                }
+                calendarHTML += '</tr>';
             }
             
             calendarHTML += `
-                            </tr>
                         </tbody>
                     </table>
-                </div>
-                <div class="mt-3">
-                    <div class="d-flex gap-2 flex-wrap">
-                        <button class="btn btn-sm btn-success" id="markPresentBtn">
-                            <i class="fas fa-check"></i> Mark Present
-                        </button>
-                        <button class="btn btn-sm btn-danger" id="markAbsentBtn">
-                            <i class="fas fa-times"></i> Mark Absent
-                        </button>
-                        <button class="btn btn-sm btn-warning" id="markLeaveBtn">
-                            <i class="fas fa-umbrella-beach"></i> Mark Leave
-                        </button>
-                        <button class="btn btn-sm btn-outline-secondary" id="clearMarkingBtn">
-                            <i class="fas fa-eraser"></i> Clear
-                        </button>
-                    </div>
-                    <div class="mt-2">
-                        <small class="text-muted">Click on a day to select it, then choose an attendance status</small>
-                    </div>
-                    <div class="mt-3">
-                        <div class="d-flex gap-2 flex-wrap">
-                            <span class="badge bg-success">Present</span>
-                            <span class="badge bg-danger">Absent</span>
-                            <span class="badge bg-warning text-dark">Leave</span>
-                            <span class="badge" style="background-color: var(--holiday-color); color: white;">Holiday</span>
-                        </div>
-                    </div>
                 </div>
             `;
             
             document.getElementById('attendanceCalendar').innerHTML = calendarHTML;
             
             // Add event listeners to calendar days
-            document.querySelectorAll('.calendar-day').forEach(dayCell => {
+            document.querySelectorAll('.calendar-table td:not(.empty-day):not(.sunday)').forEach(dayCell => {
                 if (dayCell.classList.contains('holiday')) {
                     // Don't allow marking holidays
                     dayCell.style.cursor = 'not-allowed';
@@ -551,7 +514,7 @@
                 
                 dayCell.addEventListener('click', function() {
                     // Remove selection from all days
-                    document.querySelectorAll('.calendar-day').forEach(cell => {
+                    document.querySelectorAll('.calendar-table td').forEach(cell => {
                         cell.classList.remove('selected');
                     });
                     
@@ -559,28 +522,11 @@
                     this.classList.add('selected');
                 });
             });
-            
-            // Add event listeners to action buttons
-            document.getElementById('markPresentBtn')?.addEventListener('click', function() {
-                markSelectedDay('P');
-            });
-            
-            document.getElementById('markAbsentBtn')?.addEventListener('click', function() {
-                markSelectedDay('A');
-            });
-            
-            document.getElementById('markLeaveBtn')?.addEventListener('click', function() {
-                markSelectedDay('L');
-            });
-            
-            document.getElementById('clearMarkingBtn')?.addEventListener('click', function() {
-                markSelectedDay('');
-            });
         }
         
         // Mark selected day with attendance status
         function markSelectedDay(status) {
-            const selectedDay = document.querySelector('.calendar-day.selected');
+            const selectedDay = document.querySelector('.calendar-table td.selected');
             if (!selectedDay) {
                 alert('Please select a day first');
                 return;
@@ -1236,6 +1182,139 @@
                 }
             };
             reader.readAsText(file);
+        }
+        
+        // Download attendance calendar as PDF
+        function downloadAttendancePdf() {
+            const month = document.getElementById('attendanceMonth').value;
+            const teacherId = document.getElementById('attendanceTeacher').value;
+            
+            if (!month || !teacherId) {
+                alert('Please load attendance data first');
+                return;
+            }
+            
+            const [year, monthNum] = month.split('-');
+            const teacher = teachers.find(t => t.id === parseInt(teacherId));
+            const teacherName = teacher ? teacher.name : 'Unknown Teacher';
+            const monthNameStr = monthName(parseInt(monthNum));
+            
+            // Create a new PDF document
+            const doc = new jsPDF();
+            
+            // Add title
+            doc.setFontSize(18);
+            doc.text(`Attendance Report - ${teacherName}`, 105, 15, { align: 'center' });
+            doc.setFontSize(14);
+            doc.text(`${monthNameStr} ${year}`, 105, 22, { align: 'center' });
+            
+            // Prepare calendar data for PDF
+            const monthAttendance = attendanceRecords[teacherId]?.[month] || {};
+            const monthHolidays = holidays[month] || {};
+            const daysInMonth = new Date(year, monthNum, 0).getDate();
+            
+            // Create table data
+            const tableData = [];
+            const dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+            
+            // Initialize week rows
+            let currentWeek = [];
+            
+            // Add empty cells for days before the first day of the month
+            const firstDayOfWeek = new Date(year, monthNum - 1, 1).getDay();
+            for (let i = 0; i < firstDayOfWeek; i++) {
+                currentWeek.push('');
+            }
+            
+            // Add days of the month
+            for (let day = 1; day <= daysInMonth; day++) {
+                const date = new Date(year, monthNum - 1, day);
+                const dayOfWeek = date.getDay();
+                
+                // Start new row if it's Sunday
+                if (dayOfWeek === 0 && currentWeek.length > 0) {
+                    tableData.push(currentWeek);
+                    currentWeek = [];
+                }
+                
+                // Check if this is a holiday
+                const isHoliday = monthHolidays[day];
+                
+                // Get attendance status
+                let attendanceStatus = monthAttendance[day] || '';
+                if (isHoliday) {
+                    attendanceStatus = 'H';
+                }
+                
+                let statusText = '';
+                switch (attendanceStatus) {
+                    case 'P': statusText = 'P'; break;
+                    case 'A': statusText = 'A'; break;
+                    case 'L': statusText = 'L'; break;
+                    case 'H': statusText = 'H'; break;
+                    default: statusText = '';
+                }
+                
+                currentWeek.push(`${day}\n${statusText}`);
+                
+                // End of week or end of month
+                if (dayOfWeek === 6 || day === daysInMonth) {
+                    tableData.push(currentWeek);
+                    currentWeek = [];
+                }
+            }
+            
+            // Add table to PDF
+            doc.autoTable({
+                head: [dayNames],
+                body: tableData,
+                startY: 30,
+                styles: {
+                    cellPadding: 5,
+                    fontSize: 10,
+                    valign: 'middle',
+                    halign: 'center'
+                },
+                columnStyles: {
+                    0: { fillColor: [240, 240, 240] }, // Sunday
+                    6: { fillColor: [240, 240, 240] }  // Saturday
+                },
+                didDrawCell: function(data) {
+                    if (data.section === 'body') {
+                        const cellValue = data.cell.raw;
+                        if (typeof cellValue === 'string') {
+                            const dayNumber = cellValue.split('\n')[0];
+                            const status = cellValue.split('\n')[1];
+                            
+                            // Set different background colors based on status
+                            if (status === 'P') {
+                                data.cell.styles.fillColor = [212, 237, 218]; // Present - green
+                            } else if (status === 'A') {
+                                data.cell.styles.fillColor = [248, 215, 218]; // Absent - red
+                            } else if (status === 'L') {
+                                data.cell.styles.fillColor = [255, 243, 205]; // Leave - yellow
+                            } else if (status === 'H') {
+                                data.cell.styles.fillColor = [232, 214, 240]; // Holiday - purple
+                            }
+                        }
+                    }
+                }
+            });
+            
+            // Add summary
+            const presentCount = parseInt(document.getElementById('presentDays').textContent) || 0;
+            const absentCount = parseInt(document.getElementById('absentDays').textContent) || 0;
+            const leaveCount = parseInt(document.getElementById('leaveDays').textContent) || 0;
+            const deduction = document.getElementById('salaryDeduction').textContent;
+            
+            doc.setFontSize(12);
+            doc.text(`Present: ${presentCount} days`, 20, doc.autoTable.previous.finalY + 15);
+            doc.text(`Absent: ${absentCount} days`, 20, doc.autoTable.previous.finalY + 25);
+            doc.text(`Leave: ${leaveCount} days`, 20, doc.autoTable.previous.finalY + 35);
+            doc.text(`Salary Deduction: ${deduction}`, 20, doc.autoTable.previous.finalY + 45);
+            
+            // Save the PDF
+            doc.save(`Attendance_${teacherName.replace(/ /g, '_')}_${monthNameStr}_${year}.pdf`);
         }
         
         // Reset all data
