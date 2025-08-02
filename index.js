@@ -1,4 +1,4 @@
-    // Global variables
+// Global variables
         let employees = [];
         let attendanceRecords = {};
         let currentMonth = new Date().toISOString().slice(0, 7);
@@ -127,56 +127,7 @@
         }
         
         // Load mock data (only used when no saved data exists)
-        function loadMockData() {
-            teachers = [
-                { id: 1, name: "John Doe", salary: 30000 },
-                { id: 2, name: "Jane Smith", salary: 35000 },
-                { id: 3, name: "Robert Johnson", salary: 32000 }
-            ];
-            
-            // Mock attendance data
-            attendanceRecords = {
-                '1': {
-                    '2023-06': {
-                        '1': 'P',
-                        '2': 'P',
-                        '3': 'A',
-                        '5': 'L',
-                        '10': 'A'
-                    }
-                },
-                '2': {
-                    '2023-06': {
-                        '1': 'P',
-                        '2': 'P',
-                        '3': 'P',
-                        '5': 'P',
-                        '10': 'P'
-                    }
-                },
-                '3': {
-                    '2023-06': {
-                        '1': 'P',
-                        '2': 'A',
-                        '3': 'A',
-                        '5': 'L',
-                        '10': 'P'
-                    }
-                }
-            };
-            
-            // Mock holidays
-            holidays = {
-                '2023-06': {
-                    '15': 'Public Holiday',
-                    '30': 'School Event'
-                }
-            };
-            
-            // Save mock data to localStorage
-            saveDataToStorage();
-        }
-        
+       
         
         // Show tab and hide others
         function showTab(tabId) {
