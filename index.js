@@ -1,4 +1,4 @@
-// Global variables
+ // Global variables
         let employees = [];
         let attendanceRecords = {};
         let currentMonth = new Date().toISOString().slice(0, 7);
@@ -127,7 +127,19 @@
         }
         
         // Load mock data (only used when no saved data exists)
-       
+        function loadMockData() {
+            employees = [
+                { id: 1, name: 'John Doe', salary: 30000 },
+                { id: 2, name: 'Jane Smith', salary: 35000 },
+                { id: 3, name: 'Alice Johnson', salary: 40000 }
+            ];
+            attendanceRecords = {
+                1: {},
+                2: {},
+                3: {}
+            };
+            saveDataToStorage();
+        }
         
         // Show tab and hide others
         function showTab(tabId) {
@@ -1004,30 +1016,6 @@
             }
         }
         
-            
-        // Show tab and hide others
-        function showTab(tabId) {
-            const tabs = document.querySelectorAll('.tab-pane');
-            tabs.forEach(tab => {
-                if (tab.id === tabId) {
-                    tab.classList.add('show', 'active');
-                } else {
-                    tab.classList.remove('show', 'active');
-                }
-            });
-        }
-        
-        // Update active nav link
-        function updateActiveNav(activeLink) {
-            const navLinks = document.querySelectorAll('.nav-link');
-            navLinks.forEach(link => {
-                if (link === activeLink) {
-                    link.classList.add('active');
-                } else {
-                    link.classList.remove('active');
-                }
-            });
-        }
         // Render holidays list
         function renderHolidaysList() {
             const container = document.getElementById('holidayList');
