@@ -344,3 +344,51 @@ body {
     font-size: 0.85rem;
     margin-bottom: 1rem;
 }
+/* Selected Calendar Cell Styles */
+.calendar-table td.selected {
+    border: 2px solid var(--dark-color);
+    box-shadow: 0 0 0 2px var(--primary-color);
+    transform: scale(1.05);
+    z-index: 1;
+    position: relative;
+}
+
+/* Status-specific background colors for marked cells */
+.calendar-table td.selected.present {
+    background-color: #c3e6cb !important;
+}
+
+.calendar-table td.selected.absent {
+    background-color: #f5c6cb !important;
+}
+
+.calendar-table td.selected.leave {
+    background-color: #ffeeba !important;
+}
+
+.calendar-table td.selected.holiday {
+    background-color: #d8bfd8 !important;
+}
+
+/* Hover effects for calendar cells */
+.calendar-table td:not(.empty-day):not(.sunday):not(.holiday):hover {
+    background-color: #e9ecef;
+    transition: background-color 0.2s;
+}
+
+/* Make sure status colors override hover effects */
+.calendar-table td.present:hover {
+    background-color: #d4edda !important;
+}
+
+.calendar-table td.absent:hover {
+    background-color: #f8d7da !important;
+}
+
+.calendar-table td.leave:hover {
+    background-color: #fff3cd !important;
+}
+
+.calendar-table td.holiday:hover {
+    background-color: #e8d6f0 !important;
+}
