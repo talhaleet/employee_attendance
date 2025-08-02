@@ -1,8 +1,8 @@
- // Global variables
-        let teachers = [];
+    // Global variables
+        let employees = [];
         let attendanceRecords = {};
         let currentMonth = new Date().toISOString().slice(0, 7);
-        let selectedTeacherId = null;
+        let selectedEmployeeId = null;
         let settings = {
             deductionPerAbsent: 500,
             maxLeaves: 1
@@ -17,9 +17,9 @@
             initApp();
             
             // Tab navigation
-            document.getElementById('teachersTabBtn').addEventListener('click', function(e) {
+            document.getElementById('employeesTabBtn').addEventListener('click', function(e) {
                 e.preventDefault();
-                showTab('teachersTab');
+                showTab('employeesTab');
                 updateActiveNav(this);
             });
             
@@ -41,9 +41,9 @@
                 updateActiveNav(this);
             });
             
-            // Teacher management
-            document.getElementById('saveTeacherBtn').addEventListener('click', saveTeacher);
-            document.getElementById('updateTeacherBtn').addEventListener('click', updateTeacher);
+            // Employee management
+            document.getElementById('saveEmployeeBtn').addEventListener('click', saveEmployee);
+            document.getElementById('updateEmployeeBtn').addEventListener('click', updateEmployee);
             document.getElementById('loadAttendanceBtn').addEventListener('click', loadAttendance);
             document.getElementById('loadAnalyticsBtn').addEventListener('click', loadAnalytics);
             document.getElementById('saveSettingsBtn').addEventListener('click', saveSettings);
@@ -75,11 +75,11 @@
             // Load data from localStorage
             loadDataFromStorage();
             
-            // Load teachers dropdowns
-            populateTeacherDropdowns();
+            // Load employees dropdowns
+            populateEmployeeDropdowns();
             
-            // Render teacher table
-            renderTeacherTable();
+            // Render employee table
+            renderEmployeeTable();
             
             // Load settings
             loadSettings();
@@ -90,10 +90,10 @@
         
         // Load data from localStorage
         function loadDataFromStorage() {
-            // Load teachers
-            const savedTeachers = localStorage.getItem('teachers');
-            if (savedTeachers) {
-                teachers = JSON.parse(savedTeachers);
+            // Load employees
+            const savedEmployees = localStorage.getItem('employees');
+            if (savedEmployees) {
+                employees = JSON.parse(savedEmployees);
             } else {
                 // Load mock data if no saved data exists
                 loadMockData();
@@ -120,7 +120,7 @@
         
         // Save data to localStorage
         function saveDataToStorage() {
-            localStorage.setItem('teachers', JSON.stringify(teachers));
+            localStorage.setItem('employees', JSON.stringify(employees));
             localStorage.setItem('attendanceRecords', JSON.stringify(attendanceRecords));
             localStorage.setItem('settings', JSON.stringify(settings));
             localStorage.setItem('holidays', JSON.stringify(holidays));
@@ -177,6 +177,7 @@
             saveDataToStorage();
         }
         
+        
         // Show tab and hide others
         function showTab(tabId) {
             const tabs = document.querySelectorAll('.tab-pane');
@@ -201,40 +202,40 @@
             });
         }
         
-        // Populate teacher dropdowns
-        function populateTeacherDropdowns() {
+        // Populate employee dropdowns
+        function populateEmployeeDropdowns() {
             const dropdowns = [
-                document.getElementById('attendanceTeacher'),
-                document.getElementById('analyticsTeacher')
+                document.getElementById('attendanceEmployee'),
+                document.getElementById('analyticsEmployee')
             ];
             
             dropdowns.forEach(dropdown => {
-                dropdown.innerHTML = '<option value="">' + (dropdown.id === 'analyticsTeacher' ? 'All Teachers' : 'Select Teacher') + '</option>';
-                teachers.forEach(teacher => {
+                dropdown.innerHTML = '<option value="">' + (dropdown.id === 'analyticsEmployee' ? 'All Employees' : 'Select Employee') + '</option>';
+                employees.forEach(employee => {
                     const option = document.createElement('option');
-                    option.value = teacher.id;
-                    option.textContent = teacher.name;
+                    option.value = employee.id;
+                    option.textContent = employee.name;
                     dropdown.appendChild(option);
                 });
             });
         }
         
-        // Render teacher table
-        function renderTeacherTable() {
-            const tbody = document.querySelector('#teacherTable tbody');
+        // Render employee table
+        function renderEmployeeTable() {
+            const tbody = document.querySelector('#employeeTable tbody');
             tbody.innerHTML = '';
             
-            teachers.forEach(teacher => {
+            employees.forEach(employee => {
                 const tr = document.createElement('tr');
                 tr.innerHTML = `
-                    <td>${teacher.id}</td>
-                    <td>${teacher.name}</td>
-                    <td>₹${teacher.salary.toLocaleString()}</td>
+                    <td>${employee.id}</td>
+                    <td>${employee.name}</td>
+                    <td>₹${employee.salary.toLocaleString()}</td>
                     <td>
-                        <button class="btn btn-sm btn-outline-primary edit-teacher" data-id="${teacher.id}">
+                        <button class="btn btn-sm btn-outline-primary edit-employee" data-id="${employee.id}">
                             <i class="fas fa-edit"></i>
                         </button>
-                        <button class="btn btn-sm btn-outline-danger delete-teacher" data-id="${teacher.id}">
+                        <button class="btn btn-sm btn-outline-danger delete-employee" data-id="${employee.id}">
                             <i class="fas fa-trash-alt"></i>
                         </button>
                     </td>
@@ -243,28 +244,28 @@
             });
             
             // Add event listeners to edit and delete buttons
-            document.querySelectorAll('.edit-teacher').forEach(btn => {
+            document.querySelectorAll('.edit-employee').forEach(btn => {
                 btn.addEventListener('click', function() {
-                    const teacherId = parseInt(this.getAttribute('data-id'));
-                    editTeacher(teacherId);
+                    const employeeId = parseInt(this.getAttribute('data-id'));
+                    editEmployee(employeeId);
                 });
             });
             
-            document.querySelectorAll('.delete-teacher').forEach(btn => {
+            document.querySelectorAll('.delete-employee').forEach(btn => {
                 btn.addEventListener('click', function() {
-                    const teacherId = parseInt(this.getAttribute('data-id'));
-                    deleteTeacher(teacherId);
+                    const employeeId = parseInt(this.getAttribute('data-id'));
+                    deleteEmployee(employeeId);
                 });
             });
         }
         
-        // Save new teacher
-        function saveTeacher() {
-            const name = document.getElementById('teacherName').value.trim();
-            const salary = parseFloat(document.getElementById('teacherSalary').value);
+        // Save new employee
+        function saveEmployee() {
+            const name = document.getElementById('employeeName').value.trim();
+            const salary = parseFloat(document.getElementById('employeeSalary').value);
             
             if (!name) {
-                alert('Please enter teacher name');
+                alert('Please enter employee name');
                 return;
             }
             
@@ -273,53 +274,53 @@
                 return;
             }
             
-            // Generate new teacher ID
-            const newId = teachers.length > 0 ? Math.max(...teachers.map(t => t.id)) + 1 : 1;
+            // Generate new employee ID
+            const newId = employees.length > 0 ? Math.max(...employees.map(t => t.id)) + 1 : 1;
             
-            const newTeacher = {
+            const newEmployee = {
                 id: newId,
                 name: name,
                 salary: salary
             };
             
-            teachers.push(newTeacher);
+            employees.push(newEmployee);
             
             // Save to localStorage
             saveDataToStorage();
             
             // Close modal and reset form
-            bootstrap.Modal.getInstance(document.getElementById('addTeacherModal')).hide();
-            document.getElementById('addTeacherForm').reset();
+            bootstrap.Modal.getInstance(document.getElementById('addEmployeeModal')).hide();
+            document.getElementById('addEmployeeForm').reset();
             
             // Update UI
-            populateTeacherDropdowns();
-            renderTeacherTable();
+            populateEmployeeDropdowns();
+            renderEmployeeTable();
             
             // Show success message
-            alert('Teacher added successfully!');
+            alert('Employee added successfully!');
         }
         
-        // Edit teacher
-        function editTeacher(teacherId) {
-            const teacher = teachers.find(t => t.id === teacherId);
-            if (!teacher) return;
+        // Edit employee
+        function editEmployee(employeeId) {
+            const employee = employees.find(t => t.id === employeeId);
+            if (!employee) return;
             
-            document.getElementById('editTeacherId').value = teacher.id;
-            document.getElementById('editTeacherName').value = teacher.name;
-            document.getElementById('editTeacherSalary').value = teacher.salary;
+            document.getElementById('editEmployeeId').value = employee.id;
+            document.getElementById('editEmployeeName').value = employee.name;
+            document.getElementById('editEmployeeSalary').value = employee.salary;
             
-            const modal = new bootstrap.Modal(document.getElementById('editTeacherModal'));
+            const modal = new bootstrap.Modal(document.getElementById('editEmployeeModal'));
             modal.show();
         }
         
-        // Update teacher
-        function updateTeacher() {
-            const teacherId = parseInt(document.getElementById('editTeacherId').value);
-            const name = document.getElementById('editTeacherName').value.trim();
-            const salary = parseFloat(document.getElementById('editTeacherSalary').value);
+        // Update employee
+        function updateEmployee() {
+            const employeeId = parseInt(document.getElementById('editEmployeeId').value);
+            const name = document.getElementById('editEmployeeName').value.trim();
+            const salary = parseFloat(document.getElementById('editEmployeeSalary').value);
             
             if (!name) {
-                alert('Please enter teacher name');
+                alert('Please enter employee name');
                 return;
             }
             
@@ -328,82 +329,82 @@
                 return;
             }
             
-            // Update teacher data
-            const teacherIndex = teachers.findIndex(t => t.id === teacherId);
-            if (teacherIndex !== -1) {
-                teachers[teacherIndex].name = name;
-                teachers[teacherIndex].salary = salary;
+            // Update employee data
+            const employeeIndex = employees.findIndex(t => t.id === employeeId);
+            if (employeeIndex !== -1) {
+                employees[employeeIndex].name = name;
+                employees[employeeIndex].salary = salary;
             }
             
             // Save to localStorage
             saveDataToStorage();
             
             // Close modal
-            bootstrap.Modal.getInstance(document.getElementById('editTeacherModal')).hide();
+            bootstrap.Modal.getInstance(document.getElementById('editEmployeeModal')).hide();
             
             // Update UI
-            populateTeacherDropdowns();
-            renderTeacherTable();
+            populateEmployeeDropdowns();
+            renderEmployeeTable();
             
             // Show success message
-            alert('Teacher updated successfully!');
+            alert('Employee updated successfully!');
         }
         
-        // Delete teacher
-        function deleteTeacher(teacherId) {
-            if (!confirm('Are you sure you want to delete this teacher? All attendance records will also be deleted.')) {
+        // Delete employee
+        function deleteEmployee(employeeId) {
+            if (!confirm('Are you sure you want to delete this employee? All attendance records will also be deleted.')) {
                 return;
             }
             
-            // Remove teacher
-            teachers = teachers.filter(t => t.id !== teacherId);
+            // Remove employee
+            employees = employees.filter(t => t.id !== employeeId);
             
-            // Remove attendance records for this teacher
-            if (attendanceRecords[teacherId]) {
-                delete attendanceRecords[teacherId];
+            // Remove attendance records for this employee
+            if (attendanceRecords[employeeId]) {
+                delete attendanceRecords[employeeId];
             }
             
             // Save to localStorage
             saveDataToStorage();
             
             // Update UI
-            populateTeacherDropdowns();
-            renderTeacherTable();
+            populateEmployeeDropdowns();
+            renderEmployeeTable();
             
             // Show success message
-            alert('Teacher deleted successfully!');
+            alert('Employee deleted successfully!');
         }
         
         // Load attendance data
         function loadAttendance() {
             const month = document.getElementById('attendanceMonth').value;
-            const teacherId = document.getElementById('attendanceTeacher').value;
+            const employeeId = document.getElementById('attendanceEmployee').value;
             
-            if (!month || !teacherId) {
-                alert('Please select both month and teacher');
+            if (!month || !employeeId) {
+                alert('Please select both month and employee');
                 return;
             }
             
-            selectedTeacherId = teacherId;
-            renderAttendanceCalendar(month, teacherId);
-            calculateAttendanceSummary(month, teacherId);
+            selectedEmployeeId = employeeId;
+            renderAttendanceCalendar(month, employeeId);
+            calculateAttendanceSummary(month, employeeId);
         }
         
         // Render attendance calendar
-        function renderAttendanceCalendar(month, teacherId) {
+        function renderAttendanceCalendar(month, employeeId) {
             const [year, monthNum] = month.split('-').map(Number);
             const daysInMonth = new Date(year, monthNum, 0).getDate();
             const firstDayOfWeek = new Date(year, monthNum - 1, 1).getDay();
             
-            // Get attendance data for this teacher and month
-            const monthAttendance = attendanceRecords[teacherId]?.[month] || {};
+            // Get attendance data for this employee and month
+            const monthAttendance = attendanceRecords[employeeId]?.[month] || {};
             
             // Get holidays for this month
             const monthHolidays = holidays[month] || {};
             
             // Create calendar HTML
             let calendarHTML = `
-                <h5 class="mb-3">${teacherNameById(teacherId)} - ${monthName(monthNum)} ${year}</h5>
+                <h5 class="mb-3">${employeeNameById(employeeId)} - ${monthName(monthNum)} ${year}</h5>
                 <div class="table-responsive">
                     <table class="table table-bordered calendar-table">
                         <thead>
@@ -480,7 +481,7 @@
                         calendarHTML += `
                             <td class="${dayClass}" 
                                 data-day="${currentDay}" 
-                                data-teacher="${teacherId}" 
+                                data-employee="${employeeId}" 
                                 data-month="${month}"
                                 title="${dayTitle}">
                                 <div class="calendar-day">
@@ -539,53 +540,53 @@
             }
             
             const day = parseInt(selectedDay.getAttribute('data-day'));
-            const teacherId = selectedDay.getAttribute('data-teacher');
+            const employeeId = selectedDay.getAttribute('data-employee');
             const month = selectedDay.getAttribute('data-month');
             
             // Validate leave marking (only one leave allowed per month)
             if (status === 'L') {
-                const leavesUsed = countLeavesUsed(month, teacherId);
+                const leavesUsed = countLeavesUsed(month, employeeId);
                 if (leavesUsed >= settings.maxLeaves) {
-                    alert(`Only ${settings.maxLeaves} leave(s) allowed per month. This teacher has already used ${leavesUsed} leave(s).`);
+                    alert(`Only ${settings.maxLeaves} leave(s) allowed per month. This employee has already used ${leavesUsed} leave(s).`);
                     return;
                 }
             }
             
             // Update attendance record
-            if (!attendanceRecords[teacherId]) {
-                attendanceRecords[teacherId] = {};
+            if (!attendanceRecords[employeeId]) {
+                attendanceRecords[employeeId] = {};
             }
             
-            if (!attendanceRecords[teacherId][month]) {
-                attendanceRecords[teacherId][month] = {};
+            if (!attendanceRecords[employeeId][month]) {
+                attendanceRecords[employeeId][month] = {};
             }
             
             if (status) {
-                attendanceRecords[teacherId][month][day] = status;
+                attendanceRecords[employeeId][month][day] = status;
             } else {
-                delete attendanceRecords[teacherId][month][day];
+                delete attendanceRecords[employeeId][month][day];
             }
             
             // Save to localStorage
             saveDataToStorage();
             
             // Update UI
-            renderAttendanceCalendar(month, teacherId);
-            calculateAttendanceSummary(month, teacherId);
+            renderAttendanceCalendar(month, employeeId);
+            calculateAttendanceSummary(month, employeeId);
         }
         
-        // Count leaves used by a teacher in a month
-        function countLeavesUsed(month, teacherId) {
-            if (!attendanceRecords[teacherId] || !attendanceRecords[teacherId][month]) {
+        // Count leaves used by a employee in a month
+        function countLeavesUsed(month, employeeId) {
+            if (!attendanceRecords[employeeId] || !attendanceRecords[employeeId][month]) {
                 return 0;
             }
             
-            return Object.values(attendanceRecords[teacherId][month]).filter(s => s === 'L').length;
+            return Object.values(attendanceRecords[employeeId][month]).filter(s => s === 'L').length;
         }
         
         // Calculate and display attendance summary
-        function calculateAttendanceSummary(month, teacherId) {
-            const monthAttendance = attendanceRecords[teacherId]?.[month] || {};
+        function calculateAttendanceSummary(month, employeeId) {
+            const monthAttendance = attendanceRecords[employeeId]?.[month] || {};
             const monthHolidays = holidays[month] || {};
             
             let presentCount = 0;
@@ -622,12 +623,12 @@
             document.getElementById('leaveDays').textContent = leaveCount;
             
             // Calculate and display salary deduction
-            const teacher = teachers.find(t => t.id === parseInt(teacherId));
-            if (teacher) {
+            const employee = employees.find(t => t.id === parseInt(employeeId));
+            if (employee) {
                 const deduction = absentCount * settings.deductionPerAbsent;
                 document.getElementById('salaryDeduction').textContent = `₹${deduction.toLocaleString()}`;
                 
-                const deductionPercentage = (deduction / teacher.salary) * 100;
+                const deductionPercentage = (deduction / employee.salary) * 100;
                 const deductionProgress = document.getElementById('deductionProgress');
                 deductionProgress.style.width = `${Math.min(100, deductionPercentage)}%`;
                 deductionProgress.textContent = `${deductionPercentage.toFixed(1)}%`;
@@ -637,7 +638,7 @@
         // Load analytics data
         function loadAnalytics() {
             const month = document.getElementById('analyticsMonth').value;
-            const teacherId = document.getElementById('analyticsTeacher').value;
+            const employeeId = document.getElementById('analyticsEmployee').value;
             
             if (!month) {
                 alert('Please select a month');
@@ -645,17 +646,17 @@
             }
             
             // Calculate overall statistics
-            calculateOverallStatistics(month, teacherId);
+            calculateOverallStatistics(month, employeeId);
             
-            // Generate analytics cards for each teacher
-            generateTeacherAnalytics(month, teacherId);
+            // Generate analytics cards for each employee
+            generateEmployeeAnalytics(month, employeeId);
             
             // Generate attendance trend chart
-            generateAttendanceChart(month, teacherId);
+            generateAttendanceChart(month, employeeId);
         }
         
         // Calculate overall statistics
-        function calculateOverallStatistics(month, filterTeacherId = null) {
+        function calculateOverallStatistics(month, filterEmployeeId = null) {
             const [year, monthNum] = month.split('-').map(Number);
             const daysInMonth = new Date(year, monthNum, 0).getDate();
             const monthHolidays = holidays[month] || {};
@@ -664,15 +665,15 @@
             let totalAbsent = 0;
             let totalLeave = 0;
             let totalHolidays = 0;
-            let totalTeachers = 0;
+            let totalEmployees = 0;
             let totalDeductions = 0;
             
-            const teachersToAnalyze = filterTeacherId 
-                ? teachers.filter(t => t.id === parseInt(filterTeacherId))
-                : teachers;
+            const employeesToAnalyze = filterEmployeeId 
+                ? employees.filter(t => t.id === parseInt(filterEmployeeId))
+                : employees;
             
-            teachersToAnalyze.forEach(teacher => {
-                const monthAttendance = attendanceRecords[teacher.id]?.[month] || {};
+            employeesToAnalyze.forEach(employee => {
+                const monthAttendance = attendanceRecords[employee.id]?.[month] || {};
                 
                 let presentCount = 0;
                 let absentCount = 0;
@@ -706,9 +707,9 @@
                 totalDeductions += absentCount * settings.deductionPerAbsent;
             });
             
-            totalTeachers = teachersToAnalyze.length;
+            totalEmployees = employeesToAnalyze.length;
             const workingDays = daysInMonth - countSundaysInMonth(year, monthNum) - Object.keys(monthHolidays).length;
-            const totalDays = totalTeachers * workingDays;
+            const totalDays = totalEmployees * workingDays;
             
             // Calculate percentages
             const presentPercentage = totalDays > 0 ? (totalPresent / totalDays) * 100 : 0;
@@ -737,21 +738,21 @@
             return count;
         }
         
-        // Generate teacher analytics cards
-        function generateTeacherAnalytics(month, filterTeacherId = null) {
-            const container = document.getElementById('teacherAnalyticsContainer');
+        // Generate employee analytics cards
+        function generateEmployeeAnalytics(month, filterEmployeeId = null) {
+            const container = document.getElementById('employeeAnalyticsContainer');
             container.innerHTML = '';
             
-            const teachersToAnalyze = filterTeacherId 
-                ? teachers.filter(t => t.id === parseInt(filterTeacherId))
-                : teachers;
+            const employeesToAnalyze = filterEmployeeId 
+                ? employees.filter(t => t.id === parseInt(filterEmployeeId))
+                : employees;
             
             const [year, monthNum] = month.split('-').map(Number);
             const daysInMonth = new Date(year, monthNum, 0).getDate();
             const monthHolidays = holidays[month] || {};
             
-            teachersToAnalyze.forEach(teacher => {
-                const monthAttendance = attendanceRecords[teacher.id]?.[month] || {};
+            employeesToAnalyze.forEach(employee => {
+                const monthAttendance = attendanceRecords[employee.id]?.[month] || {};
                 
                 let presentCount = 0;
                 let absentCount = 0;
@@ -786,7 +787,7 @@
                     <div class="col-md-4 mb-4">
                         <div class="card analytics-card h-100">
                             <div class="card-header">
-                                <h5 class="card-title mb-0">${teacher.name}</h5>
+                                <h5 class="card-title mb-0">${employee.name}</h5>
                             </div>
                             <div class="card-body">
                                 <div class="row mb-3">
@@ -815,7 +816,7 @@
                                     <h6>Salary Deduction: ₹${deduction.toLocaleString()}</h6>
                                     <div class="progress">
                                         <div class="progress-bar bg-danger" role="progressbar" 
-                                            style="width: ${(deduction / teacher.salary) * 100}%">
+                                            style="width: ${(deduction / employee.salary) * 100}%">
                                         </div>
                                     </div>
                                 </div>
@@ -829,7 +830,7 @@
         }
         
         // Generate attendance trend chart
-        function generateAttendanceChart(month, filterTeacherId = null) {
+        function generateAttendanceChart(month, filterEmployeeId = null) {
             const ctx = document.getElementById('attendanceChart').getContext('2d');
             const [year, monthNum] = month.split('-').map(Number);
             const daysInMonth = new Date(year, monthNum, 0).getDate();
@@ -860,12 +861,12 @@
                 holidayData.push(0);
             }
             
-            const teachersToAnalyze = filterTeacherId 
-                ? teachers.filter(t => t.id === parseInt(filterTeacherId))
-                : teachers;
+            const employeesToAnalyze = filterEmployeeId 
+                ? employees.filter(t => t.id === parseInt(filterEmployeeId))
+                : employees;
             
-            teachersToAnalyze.forEach(teacher => {
-                const monthAttendance = attendanceRecords[teacher.id]?.[month] || {};
+            employeesToAnalyze.forEach(employee => {
+                const monthAttendance = attendanceRecords[employee.id]?.[month] || {};
                 
                 let dayIndex = 0;
                 for (let day = 1; day <= daysInMonth; day++) {
@@ -941,7 +942,7 @@
                             beginAtZero: true,
                             title: {
                                 display: true,
-                                text: 'Number of Teachers'
+                                text: 'Number of Employees'
                             }
                         },
                         x: {
@@ -1100,13 +1101,13 @@
         function exportData() {
             // Prepare all data to be exported
             const exportData = {
-                teachers: teachers,
+                employees: employees,
                 attendanceRecords: attendanceRecords,
                 settings: settings,
                 holidays: holidays,
                 metadata: {
                     exportedAt: new Date().toISOString(),
-                    system: "Teacher Attendance System",
+                    system: "Employee Attendance System",
                     version: "1.0"
                 }
             };
@@ -1121,7 +1122,7 @@
             const url = URL.createObjectURL(blob);
             const a = document.createElement('a');
             a.href = url;
-            a.download = `teacher_attendance_system_export_${new Date().toISOString().split('T')[0]}.json`;
+            a.download = `employee_attendance_system_export_${new Date().toISOString().split('T')[0]}.json`;
             
             // Trigger the download
             document.body.appendChild(a);
@@ -1152,13 +1153,13 @@
                     const importedData = JSON.parse(e.target.result);
                     
                     // Validate the imported data structure
-                    if (!importedData.teachers || !importedData.attendanceRecords || 
+                    if (!importedData.employees || !importedData.attendanceRecords || 
                         !importedData.settings || !importedData.holidays) {
                         throw new Error('Invalid data format');
                     }
 
                     // Replace current data with imported data
-                    teachers = importedData.teachers;
+                    employees = importedData.employees;
                     attendanceRecords = importedData.attendanceRecords;
                     settings = importedData.settings;
                     holidays = importedData.holidays;
@@ -1167,8 +1168,8 @@
                     saveDataToStorage();
 
                     // Refresh the UI
-                    populateTeacherDropdowns();
-                    renderTeacherTable();
+                    populateEmployeeDropdowns();
+                    renderEmployeeTable();
                     renderHolidaysList();
                     loadSettings();
 
@@ -1187,16 +1188,16 @@
         // Download attendance calendar as PDF
         function downloadAttendancePdf() {
             const month = document.getElementById('attendanceMonth').value;
-            const teacherId = document.getElementById('attendanceTeacher').value;
+            const employeeId = document.getElementById('attendanceEmployee').value;
             
-            if (!month || !teacherId) {
+            if (!month || !employeeId) {
                 alert('Please load attendance data first');
                 return;
             }
             
             const [year, monthNum] = month.split('-');
-            const teacher = teachers.find(t => t.id === parseInt(teacherId));
-            const teacherName = teacher ? teacher.name : 'Unknown Teacher';
+            const employee = employees.find(t => t.id === parseInt(employeeId));
+            const employeeName = employee ? employee.name : 'Unknown Employee';
             const monthNameStr = monthName(parseInt(monthNum));
             
             // Create a new PDF document
@@ -1204,12 +1205,12 @@
             
             // Add title
             doc.setFontSize(18);
-            doc.text(`Attendance Report - ${teacherName}`, 105, 15, { align: 'center' });
+            doc.text(`Attendance Report - ${employeeName}`, 105, 15, { align: 'center' });
             doc.setFontSize(14);
             doc.text(`${monthNameStr} ${year}`, 105, 22, { align: 'center' });
             
             // Prepare calendar data for PDF
-            const monthAttendance = attendanceRecords[teacherId]?.[month] || {};
+            const monthAttendance = attendanceRecords[employeeId]?.[month] || {};
             const monthHolidays = holidays[month] || {};
             const daysInMonth = new Date(year, monthNum, 0).getDate();
             
@@ -1314,13 +1315,13 @@
             doc.text(`Salary Deduction: ${deduction}`, 20, doc.autoTable.previous.finalY + 45);
             
             // Save the PDF
-            doc.save(`Attendance_${teacherName.replace(/ /g, '_')}_${monthNameStr}_${year}.pdf`);
+            doc.save(`Attendance_${employeeName.replace(/ /g, '_')}_${monthNameStr}_${year}.pdf`);
         }
         
         // Reset all data
         function resetAllData() {
             // Reset all data structures
-            teachers = [];
+            employees = [];
             attendanceRecords = {};
             holidays = {};
             settings = {
@@ -1332,16 +1333,16 @@
             saveDataToStorage();
             
             // Update UI
-            populateTeacherDropdowns();
-            renderTeacherTable();
+            populateEmployeeDropdowns();
+            renderEmployeeTable();
             document.getElementById('attendanceCalendar').innerHTML = `
                 <div class="alert alert-info">
-                    Please select a month and teacher to view attendance.
+                    Please select a month and employee to view attendance.
                 </div>
             `;
             
             // Reset analytics
-            document.getElementById('teacherAnalyticsContainer').innerHTML = '';
+            document.getElementById('employeeAnalyticsContainer').innerHTML = '';
             if (attendanceChart) {
                 attendanceChart.destroy();
                 attendanceChart = null;
@@ -1359,10 +1360,10 @@
             alert('All data has been reset successfully!');
         }
         
-        // Helper function to get teacher name by ID
-        function teacherNameById(teacherId) {
-            const teacher = teachers.find(t => t.id === parseInt(teacherId));
-            return teacher ? teacher.name : 'Unknown Teacher';
+        // Helper function to get employee name by ID
+        function employeeNameById(employeeId) {
+            const employee = employees.find(t => t.id === parseInt(employeeId));
+            return employee ? employee.name : 'Unknown Employee';
         }
         
         // Helper function to get month name

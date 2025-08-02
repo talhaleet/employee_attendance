@@ -1,4 +1,4 @@
-:root {
+        :root {
             --primary-color: #3498db;
             --secondary-color: #2980b9;
             --success-color: #2ecc71;
@@ -24,16 +24,10 @@
             box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
             margin-bottom: 20px;
             border: none;
-             
-            
-        }
-        .card-pri{
-            background-color: var(--primary-color);
         }
         
         .card-header {
             background-color: var(--primary-color);
-           
             color: white;
             border-radius: 10px 10px 0 0 !important;
             font-weight: 600;
@@ -185,7 +179,7 @@
             padding: 20px 0;
         }
         
-        #teacherTable tbody tr:hover {
+        #employeeTable tbody tr:hover {
             background-color: rgba(52, 152, 219, 0.1);
             cursor: pointer;
         }
