@@ -1,4 +1,653 @@
-// Global variables
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Employee Attendance System</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- jsPDF -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.plugin.autotable.min.js"></script>
+    <style>
+        :root {
+            --primary-color: #3498db;
+            --secondary-color: #2980b9;
+            --success-color: #2ecc71;
+            --danger-color: #e74c3c;
+            --warning-color: #f39c12;
+            --light-color: #ecf0f1;
+            --dark-color: #34495e;
+            --holiday-color: #9b59b6;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f5f5f5;
+            color: #333;
+        }
+        
+        .navbar-brand {
+            font-weight: 700;
+        }
+        
+        .card {
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+            border: none;
+        }
+        
+        .card-header {
+            background-color: var(--primary-color);
+            color: white;
+            border-radius: 10px 10px 0 0 !important;
+            font-weight: 600;
+        }
+        
+        .btn-primary {
+            background-color: var(--primary-color);
+            border-color: var(--primary-color);
+        }
+        
+        .btn-primary:hover {
+            background-color: var(--secondary-color);
+            border-color: var(--secondary-color);
+        }
+        
+        .attendance-day {
+            cursor: pointer;
+            transition: all 0.3s;
+            border-radius: 5px;
+            position: relative;
+            border: 2px solid transparent;
+        }
+        
+        .attendance-day:hover {
+            transform: scale(1.05);
+        }
+        
+        .attendance-day.selected {
+            border-color: var(--dark-color);
+            box-shadow: 0 0 0 2px var(--primary-color);
+        }
+        
+        .present {
+            background-color: #d4edda;
+            color: #155724;
+        }
+        
+        .absent {
+            background-color: #f8d7da;
+            color: #721c24;
+        }
+        
+        .leave {
+            background-color: #fff3cd;
+            color: #856404;
+        }
+        
+        .holiday {
+            background-color: #e8d6f0;
+            color: #5e3370;
+        }
+        
+        .calendar-container {
+            overflow-x: auto;
+        }
+        
+        .calendar-table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 3px;
+        }
+        
+        .calendar-table th {
+            text-align: center;
+            background-color: #f8f9fa;
+            padding: 8px;
+            font-weight: 600;
+        }
+        
+        .calendar-table td {
+            vertical-align: middle;
+            text-align: center;
+            padding: 10px;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.2s;
+            border: 2px solid transparent;
+        }
+        
+        .calendar-day {
+            height: 40px;
+            width: 40px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+        
+        .day-number {
+            font-weight: bold;
+            font-size: 14px;
+        }
+        
+        .day-status {
+            font-size: 12px;
+            font-weight: bold;
+            margin-top: 2px;
+        }
+        
+        .present {
+            background-color: #d4edda;
+            color: #155724;
+        }
+        
+        .absent {
+            background-color: #f8d7da;
+            color: #721c24;
+        }
+        
+        .leave {
+            background-color: #fff3cd;
+            color: #856404;
+        }
+        
+        .holiday {
+            background-color: #e8d6f0;
+            color: #5e3370;
+        }
+        
+        .empty-day {
+            background-color: #f8f9fa;
+        }
+        
+        .selected {
+            border-color: #3498db;
+            box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.5);
+            transform: scale(1.05);
+        }
+        
+        .sunday {
+            background-color: #f8f9fa;
+            color: #6c757d;
+        }
+        
+        .progress {
+            height: 25px;
+        }
+        
+        .analytics-card {
+            transition: transform 0.3s;
+        }
+        
+        .analytics-card:hover {
+            transform: translateY(-5px);
+        }
+        
+        .tab-content {
+            padding: 20px 0;
+        }
+        
+        #employeeTable tbody tr:hover {
+            background-color: rgba(52, 152, 219, 0.1);
+            cursor: pointer;
+        }
+        
+        .settings-panel {
+            background-color: #f8f9fa;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+        
+        .holiday-list {
+            max-height: 200px;
+            overflow-y: auto;
+        }
+        
+        .holiday-badge {
+            cursor: pointer;
+        }
+        
+        /* Calendar layout improvements */
+        .calendar-container {
+            overflow-x: auto;
+        }
+        
+        .calendar-table {
+            min-width: 100%;
+        }
+        
+        .calendar-table th {
+            text-align: center;
+            background-color: #f8f9fa;
+        }
+        
+        .calendar-table td {
+            vertical-align: middle;
+            text-align: center;
+        }
+        
+        /* PDF download button */
+        .pdf-download-btn {
+            margin-left: 10px;
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+        <div class="container">
+            <a class="navbar-brand" href="#">
+                <i class="fas fa-user-tie me-2"></i>
+                Employee Attendance System
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link active" href="#" id="employeesTabBtn">
+                            <i class="fas fa-users me-1"></i> Employees
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#" id="attendanceTabBtn">
+                            <i class="fas fa-calendar-alt me-1"></i> Attendance
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#" id="analyticsTabBtn">
+                            <i class="fas fa-chart-pie me-1"></i> Analytics
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#" id="settingsTabBtn">
+                            <i class="fas fa-cog me-1"></i> Settings
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container mt-4">
+        <!-- Main Content Tabs -->
+        <div class="tab-content">
+            <!-- Employees Tab -->
+            <div class="tab-pane fade show active" id="employeesTab">
+                <div class="card">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <span><i class="fas fa-users me-2"></i>Employee Management</span>
+                        <button class="btn btn-light btn-sm" data-bs-toggle="modal" data-bs-target="#addEmployeeModal">
+                            <i class="fas fa-plus me-1"></i> Add Employee
+                        </button>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-hover" id="employeeTable">
+                                <thead>
+                                    <tr>
+                                        <th>ID</th>
+                                        <th>Name</th>
+                                        <th>Salary</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <!-- Employees will be loaded here dynamically -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Attendance Tab -->
+            <div class="tab-pane fade" id="attendanceTab">
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <div class="card">
+                            <div class="card-header">
+                                <i class="fas fa-calendar me-2"></i>Select Month and Employee
+                            </div>
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-md-6 mb-3">
+                                        <label for="attendanceMonth" class="form-label">Month</label>
+                                        <input type="month" class="form-control" id="attendanceMonth">
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <label for="attendanceEmployee" class="form-label">Employee</label>
+                                        <select class="form-select" id="attendanceEmployee">
+                                            <option value="">Select Employee</option>
+                                            <!-- Employees will be loaded here dynamically -->
+                                        </select>
+                                    </div>
+                                </div>
+                                <button class="btn btn-primary" id="loadAttendanceBtn">
+                                    <i class="fas fa-sync me-1"></i> Load Attendance
+                                </button>
+                                <button class="btn btn-secondary pdf-download-btn" id="downloadPdfBtn">
+                                    <i class="fas fa-file-pdf me-1"></i> Download PDF
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="card">
+                            <div class="card-header">
+                                <i class="fas fa-info-circle me-2"></i>Attendance Summary
+                            </div>
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-4 text-center">
+                                        <h5 class="text-success" id="presentDays">0</h5>
+                                        <small>Present</small>
+                                    </div>
+                                    <div class="col-4 text-center">
+                                        <h5 class="text-danger" id="absentDays">0</h5>
+                                        <small>Absent</small>
+                                    </div>
+                                    <div class="col-4 text-center">
+                                        <h5 class="text-warning" id="leaveDays">0</h5>
+                                        <small>Leave</small>
+                                    </div>
+                                </div>
+                                <div class="mt-3">
+                                    <h6>Salary Deduction: <span id="salaryDeduction">₹0</span></h6>
+                                    <div class="progress mt-2">
+                                        <div class="progress-bar bg-danger" id="deductionProgress" role="progressbar" style="width: 0%"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <span><i class="fas fa-calendar-check me-2"></i>Attendance Calendar</span>
+                    </div>
+                    <div class="card-body">
+                        <div class="calendar-container" id="attendanceCalendar">
+                            <div class="alert alert-info">
+                                Please select a month and employee to view attendance.
+                            </div>
+                        </div>
+                        <div class="mt-3">
+                            <div class="d-flex gap-2 flex-wrap">
+                                <button class="btn btn-sm btn-success" id="markPresentBtn">
+                                    <i class="fas fa-check"></i> Mark Present
+                                </button>
+                                <button class="btn btn-sm btn-danger" id="markAbsentBtn">
+                                    <i class="fas fa-times"></i> Mark Absent
+                                </button>
+                                <button class="btn btn-sm btn-warning" id="markLeaveBtn">
+                                    <i class="fas fa-umbrella-beach"></i> Mark Leave
+                                </button>
+                                <button class="btn btn-sm btn-outline-secondary" id="clearMarkingBtn">
+                                    <i class="fas fa-eraser"></i> Clear
+                                </button>
+                            </div>
+                            <div class="mt-2">
+                                <small class="text-muted">Click on a day to select it, then choose an attendance status</small>
+                            </div>
+                            <div class="mt-3">
+                                <div class="d-flex gap-2 flex-wrap">
+                                    <span class="badge bg-success">Present</span>
+                                    <span class="badge bg-danger">Absent</span>
+                                    <span class="badge bg-warning text-dark">Leave</span>
+                                    <span class="badge" style="background-color: var(--holiday-color); color: white;">Holiday</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Analytics Tab -->
+            <div class="tab-pane fade" id="analyticsTab">
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <div class="card">
+                            <div class="card-header">
+                                <i class="fas fa-filter me-2"></i>Filter Options
+                            </div>
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-md-6 mb-3">
+                                        <label for="analyticsMonth" class="form-label">Month</label>
+                                        <input type="month" class="form-control" id="analyticsMonth">
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <label for="analyticsEmployee" class="form-label">Employee (Optional)</label>
+                                        <select class="form-select" id="analyticsEmployee">
+                                            <option value="">All Employees</option>
+                                            <!-- Employees will be loaded here dynamically -->
+                                        </select>
+                                    </div>
+                                </div>
+                                <button class="btn btn-primary" id="loadAnalyticsBtn">
+                                    <i class="fas fa-chart-bar me-1"></i> Generate Report
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="card">
+                            <div class="card-header">
+                                <i class="fas fa-info-circle me-2"></i>Overall Statistics
+                            </div>
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-4 text-center">
+                                        <h5 class="text-success" id="avgPresent">0%</h5>
+                                        <small>Avg. Present</small>
+                                    </div>
+                                    <div class="col-4 text-center">
+                                        <h5 class="text-danger" id="avgAbsent">0%</h5>
+                                        <small>Avg. Absent</small>
+                                    </div>
+                                    <div class="col-4 text-center">
+                                        <h5 class="text-warning" id="avgLeave">0%</h5>
+                                        <small>Avg. Leave</small>
+                                    </div>
+                                </div>
+                                <div class="mt-3">
+                                    <h6>Total Deductions: <span id="totalDeductions">₹0</span></h6>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <i class="fas fa-chart-line me-2"></i>Attendance Trends
+                    </div>
+                    <div class="card-body">
+                        <canvas id="attendanceChart" height="100"></canvas>
+                    </div>
+                </div>
+
+                <div class="row" id="employeeAnalyticsContainer">
+                    <!-- Employee analytics cards will be loaded here dynamically -->
+                </div>
+            </div>
+
+            <!-- Settings Tab -->
+            <div class="tab-pane fade" id="settingsTab">
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="card">
+                            <div class="card-header">
+                                <i class="fas fa-money-bill-wave me-2"></i>Salary Deduction Settings
+                            </div>
+                            <div class="card-body">
+                                <div class="mb-3">
+                                    <label for="deductionAmount" class="form-label">Deduction per Absent Day (₹)</label>
+                                    <input type="number" class="form-control" id="deductionAmount" value="500">
+                                </div>
+                                <div class="mb-3">
+                                    <label for="maxLeaves" class="form-label">Maximum Leaves Allowed Per Month</label>
+                                    <input type="number" class="form-control" id="maxLeaves" value="1">
+                                </div>
+                                <button class="btn btn-primary" id="saveSettingsBtn">
+                                    <i class="fas fa-save me-1"></i> Save Settings
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="card">
+                            <div class="card-header">
+                                <i class="fas fa-calendar-times me-2"></i>Holiday Management
+                            </div>
+                            <div class="card-body">
+                                <div class="mb-3">
+                                    <label for="holidayDate" class="form-label">Add Holiday Date</label>
+                                    <input type="date" class="form-control" id="holidayDate">
+                                </div>
+                                <div class="mb-3">
+                                    <label for="holidayDescription" class="form-label">Holiday Description</label>
+                                    <input type="text" class="form-control" id="holidayDescription" placeholder="Optional description">
+                                </div>
+                                <button class="btn btn-primary mb-3" id="addHolidayBtn">
+                                    <i class="fas fa-plus me-1"></i> Add Holiday
+                                </button>
+                                
+                                <h6>Current Holidays</h6>
+                                <div class="holiday-list" id="holidayList">
+                                    <!-- Holidays will be listed here -->
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="row mt-3">
+                    <div class="col-md-6">
+                        <div class="card">
+                            <div class="card-header">
+                                <i class="fas fa-database me-2"></i>Data Management
+                            </div>
+                            <div class="card-body">
+                                <div class="d-grid gap-2">
+                                    <button class="btn btn-outline-primary" id="exportDataBtn">
+                                        <i class="fas fa-file-export me-1"></i> Export Data
+                                    </button>
+                                    <input type="file" id="importFileInput" accept=".json" style="display: none;">
+                                    <button class="btn btn-outline-secondary" id="importDataBtn">
+                                        <i class="fas fa-file-import me-1"></i> Import Data
+                                    </button>
+                                    <button class="btn btn-outline-danger" id="resetDataBtn" data-bs-toggle="modal" data-bs-target="#resetDataModal">
+                                        <i class="fas fa-trash-alt me-1"></i> Reset All Data
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add Employee Modal -->
+    <div class="modal fade" id="addEmployeeModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Add New Employee</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="addEmployeeForm">
+                        <div class="mb-3">
+                            <label for="employeeName" class="form-label">Employee Name</label>
+                            <input type="text" class="form-control" id="employeeName" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="employeeSalary" class="form-label">Monthly Salary (₹)</label>
+                            <input type="number" class="form-control" id="employeeSalary" required min="0">
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-primary" id="saveEmployeeBtn">Save Employee</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Edit Employee Modal -->
+    <div class="modal fade" id="editEmployeeModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Edit Employee</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="editEmployeeForm">
+                        <input type="hidden" id="editEmployeeId">
+                        <div class="mb-3">
+                            <label for="editEmployeeName" class="form-label">Employee Name</label>
+                            <input type="text" class="form-control" id="editEmployeeName" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="editEmployeeSalary" class="form-label">Monthly Salary (₹)</label>
+                            <input type="number" class="form-control" id="editEmployeeSalary" required min="0">
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-primary" id="updateEmployeeBtn">Update Employee</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Reset Data Confirmation Modal -->
+    <div class="modal fade" id="resetDataModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header bg-danger text-white">
+                    <h5 class="modal-title">Confirm Data Reset</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <p>Are you sure you want to reset all data? This action cannot be undone.</p>
+                    <p class="text-danger"><strong>Warning:</strong> All employees, attendance records, and settings will be permanently deleted.</p>
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" id="confirmResetCheck">
+                        <label class="form-check-label" for="confirmResetCheck">
+                            I understand this action cannot be undone
+                        </label>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-danger" id="confirmResetBtn" disabled>Reset All Data</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS Bundle with Popper -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
+    <script>
+        // Global variables
         let employees = [];
         let attendanceRecords = {};
         let currentMonth = new Date().toISOString().slice(0, 7);
@@ -126,32 +775,9 @@
             localStorage.setItem('holidays', JSON.stringify(holidays));
         }
         
-        // Load mock data (only used when no saved data exists)
        
-        
-        // Show tab and hide others
-        function showTab(tabId) {
-            const tabs = document.querySelectorAll('.tab-pane');
-            tabs.forEach(tab => {
-                if (tab.id === tabId) {
-                    tab.classList.add('show', 'active');
-                } else {
-                    tab.classList.remove('show', 'active');
-                }
-            });
-        }
-        
-        // Update active nav link
-        function updateActiveNav(activeLink) {
-            const navLinks = document.querySelectorAll('.nav-link');
-            navLinks.forEach(link => {
-                if (link === activeLink) {
-                    link.classList.add('active');
-                } else {
-                    link.classList.remove('active');
-                }
-            });
-        }
+       
+    
         
         // Populate employee dropdowns
         function populateEmployeeDropdowns() {
@@ -491,8 +1117,8 @@
             }
             
             const day = parseInt(selectedDay.getAttribute('data-day'));
-            const employeeId = selectedDay.getAttribute('data-employee');
-            const month = selectedDay.getAttribute('data-month');
+            const employeeId = selectedDay.getAttribute('data-employee'));
+            const month = selectedDay.getAttribute('data-month'));
             
             // Validate leave marking (only one leave allowed per month)
             if (status === 'L') {
@@ -1004,30 +1630,6 @@
             }
         }
         
-            
-        // Show tab and hide others
-        function showTab(tabId) {
-            const tabs = document.querySelectorAll('.tab-pane');
-            tabs.forEach(tab => {
-                if (tab.id === tabId) {
-                    tab.classList.add('show', 'active');
-                } else {
-                    tab.classList.remove('show', 'active');
-                }
-            });
-        }
-        
-        // Update active nav link
-        function updateActiveNav(activeLink) {
-            const navLinks = document.querySelectorAll('.nav-link');
-            navLinks.forEach(link => {
-                if (link === activeLink) {
-                    link.classList.add('active');
-                } else {
-                    link.classList.remove('active');
-                }
-            });
-        }
         // Render holidays list
         function renderHolidaysList() {
             const container = document.getElementById('holidayList');
@@ -1349,3 +1951,6 @@
             ];
             return months[monthNum - 1] || '';
         }
+    </script>
+</body>
+</html>
