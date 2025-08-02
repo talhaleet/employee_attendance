@@ -354,21 +354,7 @@ body {
 }
 
 /* Status-specific background colors for marked cells */
-.calendar-table td.selected.present {
-    background-color: #c3e6cb !important;
-}
 
-.calendar-table td.selected.absent {
-    background-color: #f5c6cb !important;
-}
-
-.calendar-table td.selected.leave {
-    background-color: #ffeeba !important;
-}
-
-.calendar-table td.selected.holiday {
-    background-color: #d8bfd8 !important;
-}
 
 /* Hover effects for calendar cells */
 .calendar-table td:not(.empty-day):not(.sunday):not(.holiday):hover {
@@ -391,4 +377,114 @@ body {
 
 .calendar-table td.holiday:hover {
     background-color: #e8d6f0 !important;
+}
+@media (max-width: 767.98px) {
+    .calendar-table td.selected {
+        border-width: 1px;
+        box-shadow: 0 0 0 1px var(--primary-color);
+    }
+}
+.calendar-table td:active:not(.empty-day):not(.sunday) {
+    transform: scale(0.95);
+    transition: transform 0.1s;
+}
+/* Permanent status colors for marked calendar cells */
+.calendar-table td.present {
+    background-color: #d4edda;
+    color: #155724;
+}
+
+.calendar-table td.absent {
+    background-color: #f8d7da;
+    color: #721c24;
+}
+
+.calendar-table td.leave {
+    background-color: #fff3cd;
+    color: #856404;
+}
+
+.calendar-table td.holiday {
+    background-color: #e8d6f0;
+    color: #5e3370;
+}
+
+/* Selected cell styling (when clicking to mark) */
+.calendar-table td.selected {
+    border: 2px solid var(--dark-color);
+    box-shadow: 0 0 0 2px var(--primary-color);
+    position: relative;
+    z-index: 1;
+}
+
+/* Make sure status colors persist */
+.calendar-table td.selected.present {
+    background-color: #d4edda !important;
+}
+
+.calendar-table td.selected.absent {
+    background-color: #f8d7da !important;
+}
+
+.calendar-table td.selected.leave {
+    background-color: #fff3cd !important;
+}
+
+.calendar-table td.selected.holiday {
+    background-color: #e8d6f0 !important;
+}
+
+/* Remove hover effects if not needed */
+.calendar-table td:not(.empty-day):not(.sunday):hover {
+    background-color: inherit;
+}
+/* Permanent status colors for marked calendar cells */
+.calendar-table td.present {
+    background-color: #d4edda;
+    color: #155724;
+}
+
+.calendar-table td.absent {
+    background-color: #f8d7da;
+    color: #721c24;
+}
+
+.calendar-table td.leave {
+    background-color: #fff3cd;
+    color: #856404;
+}
+
+.calendar-table td.holiday {
+    background-color: #e8d6f0;
+    color: #5e3370;
+}
+
+/* Selected cell styling (when clicking to mark) */
+.calendar-table td.selected {
+    border: 2px solid var(--dark-color);
+    box-shadow: 0 0 0 2px var(--primary-color);
+    position: relative;
+    z-index: 1;
+}
+
+/* Make sure status colors persist */
+.calendar-table td.selected.present {
+    background-color: #d4edda !important;
+}
+
+.calendar-table td.selected.absent {
+    background-color: #f8d7da !important;
+}
+
+.calendar-table td.selected.leave {
+    background-color: #fff3cd !important;
+}
+
+.calendar-table td.selected.holiday {
+    background-color: #e8d6f0 !important;
+}
+
+/* Remove hover effects if not needed */
+.calendar-table td:not(.empty-day):not(.sunday):hover {
+    background-color: inherit;
 }
