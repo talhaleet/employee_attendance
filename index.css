@@ -1,3 +1,4 @@
+/* Base Styles */
 :root {
     --primary-color: #3498db;
     --secondary-color: #2980b9;
@@ -13,16 +14,25 @@ body {
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     background-color: #f5f5f5;
     color: #333;
+    font-size: 14px;
 }
 
+/* Navigation */
 .navbar-brand {
     font-weight: 700;
+    font-size: 1.1rem;
 }
 
+.navbar-nav .nav-link {
+    padding: 0.5rem 0.75rem;
+    font-size: 0.9rem;
+}
+
+/* Cards */
 .card {
     border-radius: 10px;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-    margin-bottom: 20px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    margin-bottom: 15px;
     border: none;
 }
 
@@ -31,103 +41,85 @@ body {
     color: white;
     border-radius: 10px 10px 0 0 !important;
     font-weight: 600;
+    padding: 0.75rem 1rem;
+    font-size: 0.95rem;
 }
 
-.btn-primary {
-    background-color: var(--primary-color);
-    border-color: var(--primary-color);
+/* Buttons */
+.btn {
+    padding: 0.375rem 0.75rem;
+    font-size: 0.85rem;
 }
 
-.btn-primary:hover {
-    background-color: var(--secondary-color);
-    border-color: var(--secondary-color);
+.btn-sm {
+    padding: 0.25rem 0.5rem;
+    font-size: 0.75rem;
 }
 
-.attendance-day {
-    cursor: pointer;
-    transition: all 0.3s;
-    border-radius: 5px;
-    position: relative;
-    border: 2px solid transparent;
+/* Tables */
+.table-responsive {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
 }
 
-.attendance-day:hover {
-    transform: scale(1.05);
+.table {
+    font-size: 0.85rem;
+    margin-bottom: 0;
 }
 
-.attendance-day.selected {
-    border-color: var(--dark-color);
-    box-shadow: 0 0 0 2px var(--primary-color);
+.table th, .table td {
+    padding: 0.5rem;
 }
 
-.present {
-    background-color: #d4edda;
-    color: #155724;
+/* Forms */
+.form-control, .form-select {
+    padding: 0.375rem 0.75rem;
+    font-size: 0.85rem;
+    height: auto;
 }
 
-.absent {
-    background-color: #f8d7da;
-    color: #721c24;
-}
-
-.leave {
-    background-color: #fff3cd;
-    color: #856404;
-}
-
-.holiday {
-    background-color: #e8d6f0;
-    color: #5e3370;
-}
-
+/* Calendar */
 .calendar-container {
     overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
 }
 
 .calendar-table {
-    width: 100%;
-    border-collapse: separate;
-    border-spacing: 3px;
+    min-width: 100%;
+    font-size: 0.8rem;
 }
 
 .calendar-table th {
-    text-align: center;
-    background-color: #f8f9fa;
-    padding: 8px;
-    font-weight: 600;
+    padding: 0.5rem;
+    font-size: 0.75rem;
 }
 
 .calendar-table td {
-    vertical-align: middle;
-    text-align: center;
-    padding: 10px;
-    border-radius: 4px;
-    cursor: pointer;
-    transition: all 0.2s;
-    border: 2px solid transparent;
+    padding: 0.3rem;
+    height: 40px;
+    width: 40px;
 }
 
 .calendar-day {
-    height: 40px;
-    width: 40px;
+    height: 100%;
+    width: 100%;
     display: flex;
     flex-direction: column;
-    align-items: center;
     justify-content: center;
-    position: relative;
+    align-items: center;
 }
 
 .day-number {
     font-weight: bold;
-    font-size: 14px;
+    font-size: 12px;
 }
 
 .day-status {
-    font-size: 12px;
-    font-weight: bold;
+    font-size: 10px;
     margin-top: 2px;
 }
 
+/* Attendance Status Colors */
 .present {
     background-color: #d4edda;
     color: #155724;
@@ -146,16 +138,6 @@ body {
 .holiday {
     background-color: #e8d6f0;
     color: #5e3370;
-}
-
-.empty-day {
-    background-color: #f8f9fa;
-}
-
-.selected {
-    border-color: #3498db;
-    box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.5);
-    transform: scale(1.05);
 }
 
 .sunday {
@@ -163,63 +145,202 @@ body {
     color: #6c757d;
 }
 
+/* Progress Bars */
 .progress {
-    height: 25px;
+    height: 20px;
 }
 
-.analytics-card {
-    transition: transform 0.3s;
+/* Modals */
+.modal-content {
+    border-radius: 10px;
 }
 
-.analytics-card:hover {
-    transform: translateY(-5px);
+.modal-header {
+    padding: 0.75rem 1rem;
 }
 
-.tab-content {
-    padding: 20px 0;
+.modal-body {
+    padding: 1rem;
 }
 
-#employeeTable tbody tr:hover {
-    background-color: rgba(52, 152, 219, 0.1);
-    cursor: pointer;
+/* Responsive Grid */
+.row {
+    margin-left: -7.5px;
+    margin-right: -7.5px;
 }
 
-.settings-panel {
-    background-color: #f8f9fa;
-    border-radius: 8px;
-    padding: 20px;
-    margin-bottom: 20px;
+.row > * {
+    padding-left: 7.5px;
+    padding-right: 7.5px;
 }
 
-.holiday-list {
-    max-height: 200px;
-    overflow-y: auto;
+/* Mobile-specific styles */
+@media (max-width: 767.98px) {
+    body {
+        font-size: 13px;
+    }
+    
+    .container {
+        padding-left: 10px;
+        padding-right: 10px;
+    }
+    
+    .navbar-brand {
+        font-size: 1rem;
+    }
+    
+    .card-header {
+        padding: 0.5rem 0.75rem;
+        font-size: 0.9rem;
+    }
+    
+    .btn {
+        padding: 0.3rem 0.6rem;
+        font-size: 0.8rem;
+    }
+    
+    .table {
+        font-size: 0.8rem;
+    }
+    
+    .calendar-table td {
+        padding: 0.2rem;
+        height: 35px;
+        width: 35px;
+    }
+    
+    .day-number {
+        font-size: 11px;
+    }
+    
+    .day-status {
+        font-size: 9px;
+    }
+    
+    /* Stack columns on mobile */
+    .row-cols-md-2 > * {
+        flex: 0 0 100%;
+        max-width: 100%;
+    }
+    
+    /* Analytics cards full width on mobile */
+    #employeeAnalyticsContainer .col-md-4 {
+        flex: 0 0 100%;
+        max-width: 100%;
+    }
+    
+    /* Smaller font sizes for stats */
+    #presentDays, #absentDays, #leaveDays,
+    #avgPresent, #avgAbsent, #avgLeave {
+        font-size: 1.25rem;
+    }
 }
 
-.holiday-badge {
-    cursor: pointer;
+/* Small mobile devices (portrait phones) */
+@media (max-width: 575.98px) {
+    body {
+        font-size: 12px;
+    }
+    
+    .navbar-brand {
+        font-size: 0.9rem;
+    }
+    
+    .card-header {
+        padding: 0.4rem 0.6rem;
+        font-size: 0.85rem;
+    }
+    
+    .btn {
+        padding: 0.25rem 0.5rem;
+        font-size: 0.75rem;
+    }
+    
+    .calendar-table td {
+        height: 30px;
+        width: 30px;
+    }
+    
+    .day-number {
+        font-size: 10px;
+    }
+    
+    .day-status {
+        font-size: 8px;
+    }
+    
+    /* Attendance marking buttons stack vertically */
+    #markPresentBtn, #markAbsentBtn, #markLeaveBtn, #clearMarkingBtn {
+        width: 100%;
+        margin-bottom: 5px;
+    }
 }
 
-/* Calendar layout improvements */
-.calendar-container {
-    overflow-x: auto;
+/* Very small devices (like iPhone 5/SE) */
+@media (max-width: 450px) {
+    .calendar-table td {
+        height: 25px;
+        width: 25px;
+        padding: 0.1rem;
+    }
+    
+    .day-number {
+        font-size: 9px;
+    }
+    
+    .day-status {
+        display: none;
+    }
+    
+    .navbar-brand {
+        font-size: 0.8rem;
+    }
 }
 
-.calendar-table {
-    min-width: 100%;
+/* Utility classes for spacing */
+.mb-3 {
+    margin-bottom: 1rem !important;
 }
 
-.calendar-table th {
-    text-align: center;
-    background-color: #f8f9fa;
+.mt-3 {
+    margin-top: 1rem !important;
 }
 
-.calendar-table td {
-    vertical-align: middle;
-    text-align: center;
+.mt-2 {
+    margin-top: 0.5rem !important;
 }
 
-/* PDF download button */
-.pdf-download-btn {
-    margin-left: 10px;
+/* Flex utilities for buttons */
+.d-flex {
+    display: flex !important;
+}
+
+.flex-wrap {
+    flex-wrap: wrap !important;
+}
+
+.gap-2 {
+    gap: 0.5rem !important;
+}
+
+/* Text utilities */
+.text-center {
+    text-align: center !important;
+}
+
+.text-muted {
+    color: #6c757d !important;
+}
+
+/* Badges */
+.badge {
+    font-size: 0.75em;
+    padding: 0.35em 0.65em;
+}
+
+/* Alert */
+.alert {
+    padding: 0.5rem 1rem;
+    font-size: 0.85rem;
+    margin-bottom: 1rem;
 }
